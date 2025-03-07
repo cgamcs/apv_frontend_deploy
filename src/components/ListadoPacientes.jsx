@@ -1,8 +1,16 @@
 import usePacientes from '../hooks/usePacientes'
 import Paciente from './Paciente'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const ListadoPacientes = () => {
   const { pacientes } = usePacientes()
+
+  // Definimos las configuraciones de animación para que todo esté sincronizado
+  const animationConfig = {
+    duration: 0.5,
+    type: "tween",
+    ease: "easeInOut"
+  }
 
   return (
     <>
@@ -15,12 +23,21 @@ const ListadoPacientes = () => {
             <span className='text-indigo-600 font-bold'>Pacientes y Citas</span>
           </p>
 
-          {pacientes.map( paciente => (
-            <Paciente
-               key={paciente._id}
-               paciente={paciente}
-            />
-          ))}
+          <AnimatePresence>
+            {pacientes.map((paciente, index) => (
+              <motion.div
+                key={paciente._id}
+                initial={paciente.isNew ? { opacity: 0, scale: 0, height: 0 } : { opacity: 1, scale: 1 }}
+                animate={{ opacity: 1, scale: 1, height: 'auto' }}
+                exit={{ opacity: 0, scale: 0, height: 0 }}
+                transition={animationConfig}
+                layout={true} // Simplificado a true para mejor comportamiento
+                  className="mb-5" // Margen inferior fijo para cada item
+              >
+                <Paciente paciente={paciente} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </>
       ) : (
         <>

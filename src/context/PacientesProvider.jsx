@@ -38,23 +38,34 @@ export const PacientesProvider = ({children}) => {
                 Authorization: `Bearer ${token}`
             }
         }
-
+    
         if(paciente.id) {
-            
             try {
                 const { data } = await clienteAxios.put(`/pacientes/${paciente.id}`, paciente, config)
-                const pacienteActualizado = pacientes.map( pacienteState => pacienteState._id === data._id ? data : pacienteState)
-
+                const pacienteActualizado = pacientes.map( pacienteState => 
+                    pacienteState._id === data._id ? data : pacienteState
+                )
+    
                 setPacientes(pacienteActualizado)
             } catch (error) {
                 console.log(error.response.data.msg)
             }
         } else {
-
             try {
                 const { data } = await clienteAxios.post('/pacientes', paciente, config)
                 const { createdAt, updatedAt, __v, ...pacienteAlmacenado} = data
+                
+                pacienteAlmacenado.isNew = true
+                
                 setPacientes([pacienteAlmacenado, ...pacientes])
+                
+                setTimeout(() => {
+                    setPacientes(currentPacientes => 
+                        currentPacientes.map(p => 
+                            p._id === pacienteAlmacenado._id ? {...p, isNew: false} : p
+                        )
+                    )
+                }, 500)
             } catch (error) {
                 console.log(error.response.data.msg)
             }
